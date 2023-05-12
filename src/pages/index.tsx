@@ -5,9 +5,10 @@ import Head from "next/head";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Image from "next/image";
+import toast from "react-hot-toast";
 
 import { type RouterOutputs, api } from "~/utils/api";
-import { LoadingPage } from "~/components/loading";
+import LoadingSpinner, { LoadingPage } from "~/components/loading";
 
 dayjs.extend(relativeTime);
 
@@ -21,6 +22,13 @@ const CreatePostWizard = () => {
     onSuccess: () => {
       setContent("");
       void ctx.posts.getAll.invalidate();
+    },
+
+    onError: (e) => {
+      const errrorMessage = e.data?.zodError?.fieldErrors?.content;
+
+      if (errrorMessage && errrorMessage[0]) toast.error(errrorMessage[0]);
+      else toast.error("Failed to post. Please try again later.");
     },
   });
 
@@ -42,15 +50,29 @@ const CreatePostWizard = () => {
         type="text"
         value={content}
         onChange={(e) => setContent(e.target.value)}
-      />
-      <button
-        className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-        onClick={() => {
-          mutate({ content });
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && content !== "") {
+            mutate({ content });
+          }
         }}
-      >
-        Post
-      </button>
+      />
+      {content !== "" && !isPosting && (
+        <button
+          className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+          disabled={isPosting}
+          onClick={() => {
+            mutate({ content });
+          }}
+        >
+          Post
+        </button>
+      )}
+
+      {isPosting && (
+        <div className="flex items-center justify-center">
+          <LoadingSpinner size={20} />
+        </div>
+      )}
     </div>
   );
 };

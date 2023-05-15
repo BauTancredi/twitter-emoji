@@ -1,7 +1,6 @@
 import React from "react";
 import { SignInButton, useUser } from "@clerk/nextjs";
 import { type NextPage } from "next";
-import Head from "next/head";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Image from "next/image";
@@ -10,6 +9,7 @@ import Link from "next/link";
 
 import { type RouterOutputs, api } from "~/utils/api";
 import LoadingSpinner, { LoadingPage } from "~/components/loading";
+import PageLayout from "~/components/layout";
 
 dayjs.extend(relativeTime);
 
@@ -133,20 +133,17 @@ const Home: NextPage = () => {
 
   return (
     <>
-      <main className="flex h-screen justify-center">
-        <div className="h-full w-full border-x border-slate-200 md:max-w-2xl">
-          <div className="flex border-b border-slate-400 p-4">
-            {!isSignedIn && (
-              <div className="flex justify-center">
-                <SignInButton mode="modal" />
-              </div>
-            )}
-            {isSignedIn && <CreatePostWizard />}
-          </div>
-
-          <Feed />
+      <PageLayout>
+        <div className="flex border-b border-slate-400 p-4">
+          {!isSignedIn && (
+            <div className="flex justify-center">
+              <SignInButton mode="modal" />
+            </div>
+          )}
+          {isSignedIn && <CreatePostWizard />}
         </div>
-      </main>
+        <Feed />
+      </PageLayout>
     </>
   );
 };
